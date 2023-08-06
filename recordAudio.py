@@ -49,7 +49,7 @@ def record_audio(filename, duration): # Nombre que le queremos poner al audio y 
 
 
 def transcribe_audio(filename):
-    recognizer = sr.Recognizer() #se crea una instancia Recognizer de la libreria que va a reconocer el audio y pasar a texto
+    recognizer = sr.Recognizer() # Se crea una instancia Recognizer de la libreria que va a reconocer el audio y pasar a texto
 
     with sr.AudioFile("./Python2_FinalProject/audios_recorded/"+filename) as source: #AudioFile es propio de la libreria y en el se pasa el nombre del audio, aca se abre el file
         audio = recognizer.record(source)#record es un metodo del recognizer class y lee el audio desde el source
