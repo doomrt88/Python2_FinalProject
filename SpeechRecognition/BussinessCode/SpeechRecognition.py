@@ -1,13 +1,27 @@
 import speech_recognition as sr
+import tkinter as tk
+from tkinter import ttk
+from tkinter import filedialog
+from tkinter.ttk import Combobox
+import pyttsx3
+import os
 
-r = sr.Recognizer()
 
-with sr.Microphone() as source:
-    print('Speak Anything : ')
-    audio = r.listen(source)
+class SpeechBussiness():
+    def __init__(self):
+        self.monthly_investment:float = 0.0
+        self.apr:float = 0.0
+        self.years:int = 0
+    
+    def calculateFutureValue(self):
+        monthly_interest_rate = self.apr / 100 / 12
+        months = self.years * 12
 
-    try:
-        text = r.recognize_google(audio)
-        print('You said: {}'.format(text))
-    except:
-        print('Sorry could not hear')
+        fv = 0
+        for _ in range(months):
+            fv += self.monthly_investment
+            monthly_interest_amount = fv * monthly_interest_rate
+            fv += monthly_interest_amount
+        return fv
+
+
