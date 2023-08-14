@@ -23,8 +23,11 @@ import speech_recognition as sr #para el trascript
 #from sitepackages.scipy.io.wavfile import write
 import time
 #import wavio as wv
+import threading
+from DbCode.db import DB
 from PIL import Image, ImageTk
 from DbCode.db import DB, SpeechToAudio
+
 
 class SpeechFrame(ttk.Frame):
     def __init__(self, parent):
@@ -239,13 +242,17 @@ class SpeechFrame(ttk.Frame):
 
         lb_time = tk.Label(self.fr_list_of_audios, text='Audios', font="arial 11 bold", fg='White',bg='#F7AC40')
         lb_time.grid(row=4,column=0,sticky=tk.W,padx=90)
+        db_file = 'audios.db'
+        dataBase = DB(db_file)
+        dataBase.ping()
+        self.handle_select(dataBase)
     
 
-def handle_select(db):
-    audios = db.get_audios()
-    for m in audios:
-        print(type(m))
-        print(m)
+    def handle_select(self,dataBase):
+        audios = dataBase.get_audios()
+        for m in audios:
+            print(type(m))
+            print(m)
 
     
 
@@ -258,12 +265,6 @@ if __name__== '__main__':
     SpeechFrame(root)
 
     print("Audios UI")
-    #db_file = 'audios.db'
-    #db_file = './SpeechRecognition/DbCode/audios.db'
-    
-    #db = DB(db_file)
-    #db.ping()
-    #handle_select(db)
 
     root.mainloop()      
 
