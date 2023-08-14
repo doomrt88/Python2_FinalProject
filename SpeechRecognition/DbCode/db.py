@@ -26,7 +26,7 @@ class DB():
 
     def get_audios(self):
         with closing(self.conn.cursor()) as cur:
-            sql = 'select file_name,file_blob,text_speech from speechtoaudio order by id asc;'
+            sql = '''select file_name,file_blob,text_speech from speechtoaudio order by id asc;'''
             audios = []
             print('testDb')
             rows = cur.execute(sql)

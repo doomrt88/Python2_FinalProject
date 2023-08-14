@@ -1,18 +1,15 @@
 import tkinter as tk
-from tkinter import ttk,filedialog
+from tkinter import ttk
 from tkinter import messagebox
 from tkinter import *
 from BussinessCode.SpeechRecognition import SpeechBussiness
 
 #from SpeechRecognition.BussinessCode.SpeechRecognition import SpeechBussiness
 
-import speech_recognition as sr
 #from pygame import mixer
 from playsound import playsound
-from tkinter import filedialog
 from tkinter.ttk import Combobox
 import pyttsx3
-import os
 
 # install this is necessary pip install pyaudio SpeechRecognition requests
 import pyaudio #used to use the mic
@@ -23,8 +20,8 @@ import speech_recognition as sr #para el trascript
 #from sitepackages.scipy.io.wavfile import write
 import time
 #import wavio as wv
-from PIL import Image, ImageTk
-from DbCode.db import DB, SpeechToAudio
+import threading
+from DbCode.db import DB
 
 class SpeechFrame(ttk.Frame):
     def __init__(self, parent):
@@ -96,7 +93,7 @@ class SpeechFrame(ttk.Frame):
         tk.Label(self.fr_speech_to_text_upper1, text='Speech to Text', font=("Arial", 30, "bold"), fg='White',bg='#00A793').grid(row=0,column=0,sticky=tk.W,padx=40,pady=31)
 
         self.record_img = tk.PhotoImage(file= "./SpeechRecognition/UIImages/Record.png")
-        self.record_img = self.record_img.subsample(3, 3) 
+        self.record_img = self.record_img.subsample(4, 4) 
         lb_record_img = tk.Label(self.fr_speech_to_text_upper2,image=self.record_img,width=80,height=110,bg='#00A793').grid(row=0,column=0,padx=30)
         lb_title_record = tk.Label(self.fr_speech_to_text_upper2, text='Voice Recorder', font="arial 11 bold", fg='White',bg='#00A793',width=15)
         lb_title_record.grid(row=0,column=1,sticky=tk.W,padx=30)
@@ -117,15 +114,15 @@ class SpeechFrame(ttk.Frame):
         btn_record.grid(row=8,column=0,sticky=tk.W,padx=130,pady=10)
         
     def record_audio(self,filename,duration): # Nombre que le queremos poner al audio y cuanto va a durar
-
-        lb_waiting = tk.Label(self.fr_speech_to_text, text='Recording audio...', font="arial 11 bold", fg='White',bg='#F7AC40')
+        lb_waiting = tk.Label(self.fr_speech_to_text, text='Audio Recorded!', font="arial 11 bold", fg='White',bg='#F7AC40')
         lb_waiting.grid(row=4,column=1,sticky=tk.W)
+
         #messagebox.showinfo("Recording audio", "Recording audio...!")
         self.speechBussiness.record_audio(filename,duration)
 
         #time.sleep(5)
         self.after(2000, self.display_playAudio(filename+".wav"))
-   
+
     def display_playAudio(self,filename):
         btn_playAudioToTxt = tk.Button(self.fr_speech_to_text,text="Play file: " + filename,bg="#111111",font="arial 10 bold",fg="White",border=0,command=lambda:self.audio_to_text(filename))
         btn_playAudioToTxt.grid(row=6,column=1,sticky=tk.W)
@@ -193,13 +190,17 @@ class SpeechFrame(ttk.Frame):
 
         lb_time = tk.Label(self.fr_list_of_audios, text='Audios', font="arial 11 bold", fg='White',bg='#F7AC40')
         lb_time.grid(row=4,column=0,sticky=tk.W,padx=90)
+        db_file = 'audios.db'
+        dataBase = DB(db_file)
+        dataBase.ping()
+        self.handle_select(dataBase)
     
 
-def handle_select(db):
-    audios = db.get_audios()
-    for m in audios:
-        print(type(m))
-        print(m)
+    def handle_select(self,dataBase):
+        audios = dataBase.get_audios()
+        for m in audios:
+            print(type(m))
+            print(m)
 
     
 
@@ -212,12 +213,6 @@ if __name__== '__main__':
     SpeechFrame(root)
 
     print("Audios UI")
-    #db_file = 'audios.db'
-    #db_file = './SpeechRecognition/DbCode/audios.db'
-    
-    #db = DB(db_file)
-    #db.ping()
-    #handle_select(db)
 
     root.mainloop()      
 
