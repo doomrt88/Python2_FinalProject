@@ -240,12 +240,16 @@ class SpeechFrame(ttk.Frame):
 
         tk.Label(self.fr_list_of_audios_upper1, text='List of recorded audios', font=("Arial", 30, "bold"), fg='White',bg='#00A793',width=30,height=2).grid(row=0,column=0,sticky=tk.W)
 
-        lb_time = tk.Label(self.fr_list_of_audios, text='Audios', font="arial 11 bold", fg='White',bg='#F7AC40')
-        lb_time.grid(row=4,column=0,sticky=tk.W,padx=90)
         db_file = './SpeechRecognition/DbCode/audios.db'
         dataBase = DB(db_file)
         self.handle_select(dataBase)
     
+    def playAudio(self):
+        curItem = self.listAudiosData.focus()
+        itemValue = self.listAudiosData.item(curItem)
+        dataList = itemValue.get("values")
+        self.speechBussiness.playAudio(dataList[0])
+
 
     def handle_select(self,dataBase):
         audios = dataBase.get_audios()
@@ -258,7 +262,10 @@ class SpeechFrame(ttk.Frame):
         for dataFromAudio in audios:
             self.listAudiosData.insert('',tk.END,values=dataFromAudio)
 
-        self.listAudiosData.grid(row=5,column=0,sticky=tk.W,padx=90)
+        self.listAudiosData.grid(row=4,column=0,sticky=tk.W,padx=150)
+
+        self.btn_playAudio = tk.Button(self.fr_list_of_audios,text="Play file ",bg="#111111",font="arial 10 bold",fg="White",border=0,command=lambda:self.playAudio())
+        self.btn_playAudio.grid(row=5,column=0,sticky=tk.W, padx=90)
 
 if __name__== '__main__':
     root = tk.Tk()

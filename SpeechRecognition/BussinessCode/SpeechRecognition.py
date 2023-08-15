@@ -77,8 +77,7 @@ class SpeechBussiness():
         return self.message
 
     def audio_to_text(self,filename):
-        
-        
+   
         root_directory = "./audios_recorded"  # Change this to your desired root directory
         filen = f"{root_directory}/{filename}"
         print("directory: " + filename)
@@ -182,6 +181,21 @@ class SpeechBussiness():
         e.save_to_file(text,'Audio_File.mp3')
         e.runAndWait()
         messagebox.showinfo("Download Audio", "File has been created!")
+
+    def playAudio(self,filename):
+        root_directory = "./audios_recorded" 
+        filen = f"{root_directory}/{filename}"
+        print("directory: " + filename)
+
+        self.text_play=tk.StringVar()
+        self.text_play="Could not play the audio"
+
+        try:
+            playsound(filen)
+            print('playing sound using  playsound')
+        except Exception as e:
+            self.message = str(e)
+            print("Error in playing sound using playsound: " + str(e))
 
 
 
