@@ -1,6 +1,7 @@
 import sqlite3
 from contextlib import closing
 
+# Class to define the objects to store in the database
 class SpeechToAudio():
     def __init__(self, file_name, file_blob, text_speech):
         self.id = id
@@ -11,7 +12,7 @@ class SpeechToAudio():
     def __str__(self)->str:
         return f"{self.file_name} {self.text_speech}"
 
-
+# Class to manage the database connection. We are using SQLite Database.
 class DB():
     def __init__(self, db_name):
         self.conn = sqlite3.connect(db_name)
@@ -24,6 +25,7 @@ class DB():
             for r in resp.fetchall():
                 print(r['col'])
 
+    # Method to get the list of recorded audios
     def get_audios(self):
         with closing(self.conn.cursor()) as cur:
             sql = '''select file_name,file_blob,text_speech from speechtoaudio order by id asc;'''
@@ -34,6 +36,7 @@ class DB():
                 audios.append(audio)
             return audios
         
+     # Method to insert a record   
     def insert(self, speechToAudio):
         with closing(self.conn.cursor()) as cur:
             sql = '''

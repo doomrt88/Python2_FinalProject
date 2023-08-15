@@ -12,27 +12,27 @@ from DbCode.db import DB, SpeechToAudio
 from tkinter import messagebox
 
 
-
+# Class with the business logic
 class SpeechBussiness():
     def __init__(self):
-        self.monthly_investment:float = 0.0
-        self.apr:float = 0.0
         self.years:int = 0
     
-    
-    def record_audio(self,filename,duration): # Nombre que le queremos poner al audio y cuanto va a durar
+    # Method to detect Speech with the Microphone and record the audio. It creates a WAV file.
+    # This method receives the name of the file and the duration in seconds
+    # pip install PyAudio: cross-platform audio input/output library. Used to detect audible events in python.
+    # pip install Wave:  used to read and write wav files.
+    def record_audio(self,filename,duration): 
 
-        #messagebox.showinfo("Recording audio", "Recording audio...!")
-        CHUNK = 1024 #tamano del audio en bytes
-        FORMAT = pyaudio.paInt16 #formato del audio
-        CHANNELS = 1 #porque solo tiene 1 canal de entrada que es el microfono
-        RATE = 44100 #Numero de samples (single data point representing the amplitude of an audio signal at a specific point in time.)
+        CHUNK = 1024 # audio size in bytes
+        FORMAT = pyaudio.paInt16 # audio format
+        CHANNELS = 1 # It only has 1 input channel, which is the microphone.
+        RATE = 44100 # Number of samples (single data point representing the amplitude of an audio signal at a specific point in time.)
 
-        audio = pyaudio.PyAudio()  #crea una instancia de PyAudio para input y output de audio
+        audio = pyaudio.PyAudio()  # create a PyAudio instance for audio input and output
         self.message=tk.StringVar()
         self.message=""
 
-        stream = audio.open(format=FORMAT, #abre el archivo para grabar los valores anteriores
+        stream = audio.open(format=FORMAT, # abre el archivo para grabar los valores anteriores
                         channels=CHANNELS,
                         rate=RATE,
                         input=True, #este indica que se va a hacer un input con microfono
@@ -40,42 +40,46 @@ class SpeechBussiness():
 
         print("Recording...")
 
-        frames = [] #collection of samples, inicialmente vacia y se llena leyendo el stream
+        frames = [] # collection of samples, inicialmente vacia y se llena leyendo el stream
 
+        # We are handling exceptions
         try:
 
-            for i in range(0, int(RATE / CHUNK * int(duration))): #RATE / CHUNK = numero de chunks per second and * duration para tener el total de 
-            #chunks per record
-                data = stream.read(CHUNK)  #en cada loop se toma el valor y despues se agrega al frame
+            for i in range(0, int(RATE / CHUNK * int(duration))): #RATE / CHUNK = chunks number per second and * duration to have the total chunks per record
+                data = stream.read(CHUNK)  # in each loop the value is taken and then added to the frame
                 frames.append(data)
 
-            print("Finished recording.")  #finaliza la grabacion
+            print("Finished recording.")  #finish record
 
-            stream.stop_stream() #se detiene el stream
-            stream.close()# se cierra el stream
-            audio.terminate() # finaliza el pyAudio 
+            stream.stop_stream() # the stream stops
+            stream.close() # the stream is closed
+            audio.terminate() # end the pyAudio
 
             root_directory = "./audios_recorded"  # Change this to your desired root directory
             filename_full = f"{root_directory}/{filename}.wav"
             print(filename_full)
 
-            #No se si esto ponerlo en una funcion por si se quiere guardar el audio o si no
-
-            wf = wave.open(filename_full, 'wb') #utilizamos la libreria WAVE para abrir el audio y en este caso write binary
+            # We are saving the audio
+            wf = wave.open(filename_full, 'wb') # We use the WAVE library to open the audio and in this case write binary
             wf.setnchannels(CHANNELS)
             wf.setsampwidth(audio.get_sample_size(FORMAT))
             wf.setframerate(RATE)
-            #los 3 anteriores establecen los valores del audio usando funciones del WAVE, todos los set
-            wf.writeframes(b''.join(frames)) #usamos los frames que se incluyeron en la parte de grabar y queda en el audio file
-            #la b es para convertir en bytes antes de escribirlo en el audio
-            wf.close()#se cierra el nuevo wav file
+            # the previous 3 set the audio values ​​using WAVE functions, all the set
+            wf.writeframes(b''.join(frames)) # We use the frames that were included in the recording part and remain in the audio file
+            # the 'b' is for converting to bytes before writing it to the audio
+            wf.close() # the new wav file is closed
         
+        # We are handling exceptions
         except Exception as e:
                 self.message = str(e)
                 print("Error in record_audio")
 
         return self.message
+    
 
+    # Method to play the audio file and convert the Speech to Text.
+    # pip install playsound: used to play a sound file (. wav or . mp3) from a given file path.
+    # pip install SpeechRecognition: used to convert speech to text in python using Google's Speech Recognition module.
     def audio_to_text(self,filename):
    
         root_directory = "./audios_recorded"  # Change this to your desired root directory
@@ -113,7 +117,7 @@ class SpeechBussiness():
                 print(e)
                 self.text_recognize="Error: Could not recognize the audio"
 
-        #Guardando el registro en la base de datos
+        # Saving the record in the database
         file_blob = self.convert_into_binary(filen)
         speechToAudio = SpeechToAudio(filename, file_blob, self.text_recognize)
         db_file = './SpeechRecognition/DbCode/audios.db'
@@ -122,16 +126,16 @@ class SpeechBussiness():
 
         return self.text_recognize
     
+    # Method to convert the contents of a file to binary
     def convert_into_binary(self,file_path):
         with open(file_path, 'rb') as file:
             binary = file.read()
         return binary
     
+
+    # Method to convert Text to Speech
+    # pip install pyttsx3: used to convert text to speech
     def play_audio_text_speech(self,gender,speed,text): 
-        #language = 'en'
-        #speech = gTTS(text = text1, lang = language, slow = False)
-        #speech.save("text.mp3")
-        #os.system("start text.mp3")
 
         print(gender)
         print(speed)
@@ -139,43 +143,43 @@ class SpeechBussiness():
         e=pyttsx3.init()
         v = e.getProperty('voices')
 
+        # Setting the property RATE: change the speed of the speech
         if (speed == 'Fast'):
             e.setProperty('rate', 300)
-            #check_voice()
         elif (speed == 'Normal'):
             e.setProperty('rate', 150)
-            #check_voice()
         else:
             e.setProperty('rate', 50)
-            #check_voice()
 
+        # Setting the property VOICE: change the voice of the engine, the default is the voice of a male.
         if (gender == 'Male'):
             e.setProperty('voice', v[0].id)
         else:
             e.setProperty('voice', v[1].id)
+
+        # Setting the property VOLUME: change the volume of the sound.
         e.setProperty('volume', (100) / 100)
         e.say(text)
         e.runAndWait()
 
+    # Method to generate a file and download
     def download_file_text_speech(self,gender,speed,text):
         e=pyttsx3.init()
         v = e.getProperty('voices')
 
         if (speed == 'Fast'):
             e.setProperty('rate', 300)
-            #check_voice()
         elif (speed == 'Normal'):
             e.setProperty('rate', 150)
-            #check_voice()
         else:
             e.setProperty('rate', 50)
-            #check_voice()
 
         if (gender == 'Male'):
             e.setProperty('voice', v[0].id)
         else:
             e.setProperty('voice', v[1].id)
         e.setProperty('volume', (100) / 100)
+
         path=filedialog.askdirectory()
         os.chdir(path)
         e.save_to_file(text,'Audio_File.mp3')
