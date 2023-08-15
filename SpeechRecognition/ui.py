@@ -190,19 +190,23 @@ class SpeechFrame(ttk.Frame):
 
         lb_time = tk.Label(self.fr_list_of_audios, text='Audios', font="arial 11 bold", fg='White',bg='#F7AC40')
         lb_time.grid(row=4,column=0,sticky=tk.W,padx=90)
-        db_file = 'audios.db'
+        db_file = './SpeechRecognition/DbCode/audios.db'
         dataBase = DB(db_file)
-        dataBase.ping()
         self.handle_select(dataBase)
     
 
     def handle_select(self,dataBase):
         audios = dataBase.get_audios()
-        for m in audios:
-            print(type(m))
-            print(m)
 
-    
+        self.listAudiosData = ttk.Treeview(self.fr_list_of_audios, columns=('file_name', 'text_speech'), show="headings", height="8")
+
+        self.listAudiosData.heading('file_name',text = 'File Name')
+        self.listAudiosData.heading('text_speech',text = 'Text Speech')
+
+        for dataFromAudio in audios:
+            self.listAudiosData.insert('',tk.END,values=dataFromAudio)
+
+        self.listAudiosData.grid(row=5,column=0,sticky=tk.W,padx=90)
 
 if __name__== '__main__':
     root = tk.Tk()
