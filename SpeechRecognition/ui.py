@@ -1,15 +1,18 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk,filedialog
 from tkinter import messagebox
 from tkinter import *
 from BussinessCode.SpeechRecognition import SpeechBussiness
 
 #from SpeechRecognition.BussinessCode.SpeechRecognition import SpeechBussiness
 
+import speech_recognition as sr
 #from pygame import mixer
 from playsound import playsound
+from tkinter import filedialog
 from tkinter.ttk import Combobox
 import pyttsx3
+import os
 
 # install this is necessary pip install pyaudio SpeechRecognition requests
 import pyaudio #used to use the mic
@@ -22,6 +25,9 @@ import time
 #import wavio as wv
 import threading
 from DbCode.db import DB
+from PIL import Image, ImageTk
+from DbCode.db import DB, SpeechToAudio
+
 
 class SpeechFrame(ttk.Frame):
     def __init__(self, parent):
@@ -81,61 +87,106 @@ class SpeechFrame(ttk.Frame):
     def speech_to_text(self):
         self.fr_buttons.grid(row=0,column=0,sticky="nsew")
         self.fr_speech_to_text.grid(row=0,column=1,sticky="nsew")
-        self.fr_speech_to_text_upper1 = tk.Frame(self.fr_speech_to_text,width=200, height=110,bg="#00A793")
+        self.fr_speech_to_text_upper1 = tk.Frame(self.fr_speech_to_text,width=900, height=110,bg="#00A793")
         self.fr_speech_to_text_upper1.grid(row=0,column=0)
-        self.fr_speech_to_text_upper2 = tk.Frame(self.fr_speech_to_text,width=500, height=110,bg="#00A793")
-        self.fr_speech_to_text_upper2.grid(row=0,column=1)
+        #self.fr_speech_to_text_upper2 = tk.Frame(self.fr_speech_to_text,width=500, height=110,bg="#00A793")
+        #self.fr_speech_to_text_upper2.grid(row=0,column=1)
+        self.fr_speech_to_text2 = tk.Frame(self.fr_speech_to_text,width=900, height=110,bg="#F7AC40")
+        self.fr_speech_to_text2.grid(row=1,column=0)
+
+        self.fr_speech_to_text_2_1 = tk.Frame(self.fr_speech_to_text2,width=300, height=110,bg="#F7AC40")
+        self.fr_speech_to_text_2_1.grid(row=0,column=0)
+
 
         self.fr_text_to_speech.grid_remove()
         self.fr_list_of_audios.grid_remove()
         
         # frame and text area placement on the app window
-        tk.Label(self.fr_speech_to_text_upper1, text='Speech to Text', font=("Arial", 30, "bold"), fg='White',bg='#00A793').grid(row=0,column=0,sticky=tk.W,padx=40,pady=31)
+        tk.Label(self.fr_speech_to_text_upper1, text='Speech to Text', font=("Arial", 30, "bold"), fg='White',bg='#00A793',width=30,height=2).grid(row=0,column=0,sticky=tk.W)
 
-        self.record_img = tk.PhotoImage(file= "./SpeechRecognition/UIImages/Record.png")
-        self.record_img = self.record_img.subsample(4, 4) 
-        lb_record_img = tk.Label(self.fr_speech_to_text_upper2,image=self.record_img,width=80,height=110,bg='#00A793').grid(row=0,column=0,padx=30)
-        lb_title_record = tk.Label(self.fr_speech_to_text_upper2, text='Voice Recorder', font="arial 11 bold", fg='White',bg='#00A793',width=15)
-        lb_title_record.grid(row=0,column=1,sticky=tk.W,padx=30)
+        #self.record_img = tk.PhotoImage(file= "./SpeechRecognition/UIImages/Record.png")
+        #self.record_img = self.record_img.subsample(3, 3) 
+        #lb_record_img = tk.Label(self.fr_speech_to_text_upper2,image=self.record_img,width=80,height=110,bg='#00A793').grid(row=0,column=0,padx=30)
+        #lb_title_record = tk.Label(self.fr_speech_to_text_upper2, text='Voice Recorder', font="arial 11 bold", fg='White',bg='#00A793',width=15)
+        #lb_title_record.grid(row=0,column=1,sticky=tk.W,padx=30)
 
-        lb_time = tk.Label(self.fr_speech_to_text, text='Enter time in seconds', font="arial 11 bold", fg='White',bg='#F7AC40')
+        #revisar desde aqui
+        # lb_time = tk.Label(self.fr_speech_to_text, text='Enter time in seconds', font="arial 11 bold", fg='White',bg='#F7AC40')
+        # lb_time.grid(row=4,column=0,sticky=tk.W,padx=90)
+        # self.duration=tk.StringVar()
+        # entryDuration=tk.Entry(self.fr_speech_to_text,textvariable=self.duration,font="arial 11",width=20)
+        # entryDuration.grid(row=5, column=0, sticky=tk.W,padx=90)
+
+        # lb_file = tk.Label(self.fr_speech_to_text, text='Enter the name of file', font="arial 11 bold", fg='White',bg='#F7AC40')
+        # lb_file.grid(row=6,column=0,sticky=tk.W,padx=90)
+        # self.filename=tk.StringVar()
+        # entryFileName=tk.Entry(self.fr_speech_to_text,textvariable=self.filename,font="arial 11",width=20)
+        # entryFileName.grid(row=7, column=0, sticky=tk.W,padx=90)
+        
+        # btn_record = tk.Button(self.fr_speech_to_text,font="arial 10 bold",text="Record",bg="#111111",fg="white",border=0,command=lambda:self.record_audio(self.filename.get(),self.duration.get()))
+        # btn_record.grid(row=8,column=0,sticky=tk.W,padx=130,pady=10)
+
+        lb_time = tk.Label(self.fr_speech_to_text_2_1, text='Enter time in seconds', font="arial 11 bold", fg='White',bg='#F7AC40')
         lb_time.grid(row=4,column=0,sticky=tk.W,padx=90)
         self.duration=tk.StringVar()
-        entryDuration=tk.Entry(self.fr_speech_to_text,textvariable=self.duration,font="arial 11",width=20)
+        entryDuration=tk.Entry(self.fr_speech_to_text_2_1,textvariable=self.duration,font="arial 11",width=20)
         entryDuration.grid(row=5, column=0, sticky=tk.W,padx=90)
 
-        lb_file = tk.Label(self.fr_speech_to_text, text='Enter the name of file', font="arial 11 bold", fg='White',bg='#F7AC40')
+        lb_file = tk.Label(self.fr_speech_to_text_2_1, text='Enter the name of file', font="arial 11 bold", fg='White',bg='#F7AC40')
         lb_file.grid(row=6,column=0,sticky=tk.W,padx=90)
         self.filename=tk.StringVar()
-        entryFileName=tk.Entry(self.fr_speech_to_text,textvariable=self.filename,font="arial 11",width=20)
+        entryFileName=tk.Entry(self.fr_speech_to_text_2_1,textvariable=self.filename,font="arial 11",width=20)
         entryFileName.grid(row=7, column=0, sticky=tk.W,padx=90)
         
-        btn_record = tk.Button(self.fr_speech_to_text,font="arial 10 bold",text="Record",bg="#111111",fg="white",border=0,command=lambda:self.record_audio(self.filename.get(),self.duration.get()))
+        btn_record = tk.Button(self.fr_speech_to_text_2_1,font="arial 10 bold",text="Record",bg="#111111",fg="white",border=0,command=lambda:self.record_audio(self.filename.get(),self.duration.get()))
         btn_record.grid(row=8,column=0,sticky=tk.W,padx=130,pady=10)
+
+        btn_clear_speech = tk.Button(self.fr_speech_to_text_2_1,font="arial 10 bold",text="Clear",bg="#111111",fg="white",border=0,command=lambda:self.clear_speech())
+        btn_clear_speech.grid(row=9,column=0,sticky=tk.W,padx=130,pady=10)
+
+        lb_add = tk.Label(self.fr_speech_to_text_2_1, text='', font="arial 11 bold", fg='White',bg='#F7AC40',height="5")
+        lb_add.grid(row=10,column=0,sticky=tk.W,padx=90)
+        
+
+        self.fr_speech_to_text_2_2 = tk.Frame(self.fr_speech_to_text2,width=300, height=80,bg="#F7AC40")
+        self.fr_speech_to_text_2_2.grid(row=0,column=1)
+        
+
+    def clear_speech(self):
+        if(self.lb_waiting.winfo_exists()):
+            self.lb_waiting.grid_remove()
+        if(self.btn_playAudioToTxt.winfo_exists()):
+            self.btn_playAudioToTxt.grid_remove()
+        if(self.txt_area_recognize.winfo_exists()):
+            self.txt_area_recognize.grid_remove()
+
         
     def record_audio(self,filename,duration): # Nombre que le queremos poner al audio y cuanto va a durar
-        lb_waiting = tk.Label(self.fr_speech_to_text, text='Audio Recorded!', font="arial 11 bold", fg='White',bg='#F7AC40')
-        lb_waiting.grid(row=4,column=1,sticky=tk.W)
 
+        self.lb_waiting = tk.Label(self.fr_speech_to_text_2_2, text='Recording audio...', font="arial 11 bold", fg='White',bg='#F7AC40')
+        self.lb_waiting.grid(row=0,column=0,sticky=tk.W)
         #messagebox.showinfo("Recording audio", "Recording audio...!")
-        self.speechBussiness.record_audio(filename,duration)
-
-        #time.sleep(5)
-        self.after(2000, self.display_playAudio(filename+".wav"))
-
+        self.message=tk.StringVar()
+        self.message=""
+        self.message = self.speechBussiness.record_audio(filename,duration)
+        if(self.message == ""):
+            self.after(2000, self.display_playAudio(filename+".wav"))
+        else:
+            messagebox.showinfo("Error Recording Audio", "Error: " + self.message)
+   
     def display_playAudio(self,filename):
-        btn_playAudioToTxt = tk.Button(self.fr_speech_to_text,text="Play file: " + filename,bg="#111111",font="arial 10 bold",fg="White",border=0,command=lambda:self.audio_to_text(filename))
-        btn_playAudioToTxt.grid(row=6,column=1,sticky=tk.W)
+        self.btn_playAudioToTxt = tk.Button(self.fr_speech_to_text_2_2,text="Play file: " + filename,bg="#111111",font="arial 10 bold",fg="White",border=0,command=lambda:self.audio_to_text(filename))
+        self.btn_playAudioToTxt.grid(row=2,column=0,sticky=tk.W)
 
     def audio_to_text(self,filename):
         self.text_recognize=tk.StringVar()
         self.text_recognize="Could not recognize the audio"
         self.text_recognize=self.speechBussiness.audio_to_text(filename)
 
-        txt_area_recognize=Text(self.fr_speech_to_text,font="arial 10",width=30,height=2,wrap=WORD)
-        txt_area_recognize.insert(INSERT, self.text_recognize)
-        txt_area_recognize.config(state=DISABLED)
-        txt_area_recognize.grid(row=8,column=1,sticky=tk.W)
+        self.txt_area_recognize=Text(self.fr_speech_to_text_2_2,font="arial 10",width=30,height=2,wrap=WORD)
+        self.txt_area_recognize.insert(INSERT, self.text_recognize)
+        self.txt_area_recognize.config(state=DISABLED)
+        self.txt_area_recognize.grid(row=3,column=0,sticky=tk.W,pady=5)
 
 
 
@@ -178,10 +229,11 @@ class SpeechFrame(ttk.Frame):
 
    
     def list_audios(self):
-        self.fr_buttons.grid(row=0,column=0,sticky="ns")
-        self.fr_list_of_audios.grid(row=0,column=1,sticky="ns")
         self.fr_speech_to_text.grid_remove()
         self.fr_text_to_speech.grid_remove()
+        self.fr_buttons.grid(row=0,column=0,sticky="ns")
+        self.fr_list_of_audios.grid(row=0,column=1,sticky="ns")
+
 
         self.fr_list_of_audios_upper1 = tk.Frame(self.fr_list_of_audios,width=1700, height=110,bg="#00A793")
         self.fr_list_of_audios_upper1.grid(row=0,column=0)
