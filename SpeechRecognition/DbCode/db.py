@@ -9,7 +9,7 @@ class SpeechToAudio():
         self.text_speech = text_speech
 
     def __str__(self)->str:
-        return f"file_name: {self.file_name}\t text: {self.text_speech}"
+        return f"{self.file_name} {self.text_speech}"
 
 
 class DB():
@@ -28,9 +28,7 @@ class DB():
         with closing(self.conn.cursor()) as cur:
             sql = '''select file_name,file_blob,text_speech from speechtoaudio order by id asc;'''
             audios = []
-            print('testDb')
             rows = cur.execute(sql)
-            print('testDb2')
             for row in rows.fetchall():
                 audio = SpeechToAudio(row['file_name'],row['file_blob'],row['text_speech'])
                 audios.append(audio)
