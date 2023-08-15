@@ -225,7 +225,7 @@ class SpeechFrame(ttk.Frame):
         dataBase = DB(db_file)
         self.handle_select(dataBase)
     
-
+    # Method to list the recorded audios
     def handle_select(self,dataBase):
         audios = dataBase.get_audios()
 
@@ -238,6 +238,7 @@ class SpeechFrame(ttk.Frame):
             self.listAudiosData.insert('',tk.END,values=dataFromAudio)
 
         self.listAudiosData.grid(row=5,column=0,sticky=tk.W,padx=90)
+        
 
 if __name__== '__main__':
     root = tk.Tk()
